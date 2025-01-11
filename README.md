@@ -10,7 +10,23 @@ This will install Unbound 1.22.0 with support for DNS over QUIC.
 - Stale caching
 - Minimal responses
 
-NOTE: A valid SSL certificate is required in order to perform DNS over QUIC queries.
+**NOTE:** A valid SSL certificate is required in order to perform DNS over QUIC queries.
+
+**Unbound built with:**
+```
+Version 1.22.0
+
+Configure line: --build=x86_64-linux-gnu --prefix=/usr --includedir=/include --mandir=/share/man --infodir=/share/info --sysconfdir=/etc --localstatedir=/var --disable-option-checking --disable-silent-rules --libdir=/lib/x86_64-linux-gnu --runstatedir=/run --disable-maintainer-mode --disable-dependency-tracking --with-pythonmodule --with-pyunbound --enable-subnet --enable-dnstap --enable-systemd --with-libnghttp2 --with-chroot-dir= --with-dnstap-socket-path=/run/dnstap.sock --with-pidfile=/run/unbound.pid --with-libevent --enable-tfo-client --with-rootkey-file=/usr/share/dns/root.key --enable-tfo-server --with-ssl=/usr/local/openssl-quic --with-libngtcp2=/usr/local/openssl-quic LDFLAGS=-Wl,-rpath -Wl,/usr/local/openssl-quic/lib
+
+Linked libs: libevent 2.1.12-stable (it uses epoll), OpenSSL 1.1.1o+quic  3 May 2022
+
+Linked modules: dns64 python subnetcache respip validator iterator
+
+TCP Fastopen feature available
+
+BSD licensed, see LICENSE in source package for details.
+Report bugs to unbound-bugs@nlnetlabs.nl or https://github.com/NLnetLabs/unbound/issues
+```
 
 ## Install
 
