@@ -11,22 +11,30 @@ fi
 
 rm -f run.log && touch run.log
 
-# TODO: Unzip unbound.tar and move to sbin
+# Install extra dependencies
+sudo apt install python3 
+
+# Unzip unbound.tar and move to sbin
 echo "Extracting Unbound"
 tar xzf unbound-quic-1.22.0.tar.gz | tee -a run.log
 cd unbound-quic-1.22.0
-
-# TODO: install extra dependencies
+sudo cp -r local/ /usr/local/ | tee -a run.log
+sudo cp -r sbin /usr/sbin/ | tee -a run.log
 
 # Generate user for unbound.service
 echo "Generating new user (unbound)"
 sudo groupadd --system unbound | tee -a run.log
 sudo useradd --system --home /var/lib/unbound --shell /usr/sbin/nologin --ingroup unbound unbound | tee -a run.log
 
-# Set permissions
+# Create app directories
 echo "Creating app directories and configuring ownership"
 sudo mkdir -p /var/lib/unbound/certs /var/log/unbound /etc/unbound | tee -a run.log
 sudo cp config/unbound.conf /etc/unbond.conf
+
+# Generate root hints
+wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
+
+# Set permissions
 sudo chown -R unbound:unbound /var/lib/unbound /var/log/unbound /etc/unbound | tee -a run.log
 sudo chmod -R 755 /var/lib/unbound /var/log/unbound /etc/unbound | tee -a run.log
 
