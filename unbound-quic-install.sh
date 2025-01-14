@@ -58,6 +58,26 @@ if sudo apparmor_status | grep -q "module is loaded"; then
   sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
 fi
 
+# Update sysctl.conf
+echo "Appending params to /etc/sysctl.conf"
+sudo tee -a /etc/sysctl.conf > /dev/null <<EOT
+
+# Optimize kernel parameters for Unbound DNS resolver:
+# These settings improve the performance of Unbound by increasing
+# buffer sizes for TCP sockets (critical for DNS over TCP/TLS),
+# enabling the 'fq' queuing discipline to reduce latency,
+# and using the BBR congestion control algorithm for better
+# bandwidth and lower response times.
+
+net.core.rmem_max = 4194304
+net.core.wmem_max = 4194304
+net.ipv4.tcp_rmem = 4096 87380 4194304
+net.ipv4.tcp_wmem = 4096 87380 4194304
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+EOT
+sudo sysctl -p
+
 # Enable unbound
 systemctl enable unbound | tee -a run.log
 systemctl restart unbound | tee -a run.log
