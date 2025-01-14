@@ -23,8 +23,7 @@ sudo cp -r sbin /usr/sbin/ | tee -a run.log
 
 # Generate user for unbound.service
 echo "Generating new user (unbound)"
-sudo groupadd --system unbound | tee -a run.log
-sudo useradd --system --home /var/lib/unbound --shell /usr/sbin/nologin --ingroup unbound unbound | tee -a run.log
+sudo useradd -M --system --shell /usr/sbin/nologin --user-group unbound | tee -a run.log
 
 # Create app directories
 echo "Creating app directories and configuring ownership"
