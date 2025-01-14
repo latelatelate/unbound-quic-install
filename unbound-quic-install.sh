@@ -10,6 +10,9 @@ if [ "$EUID" -ne 0 ]
 fi
 
 REPO_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+UNBOUND_PATH=/etc/unbound
+LIB_PATH=/var/lib/unbound
+LOG_PATH=/var/log/unbound
 
 rm -f run.log && touch run.log
 
@@ -28,15 +31,16 @@ sudo useradd -M --system --shell /usr/sbin/nologin --user-group unbound | tee -a
 
 # Create app directories
 echo "Creating app directories and configuring ownership"
-sudo mkdir -p /var/lib/unbound/certs /var/log/unbound /etc/unbound | tee -a run.log
-sudo cp "$REPO_PATH/config/unbound.conf" /etc/unbond.conf
+sudo mkdir -p "$LIB_PATH/certs" $LOG_PATH $UNBOUND_PATH | tee -a run.log
+sudo cp "$REPO_PATH/config/unbound.conf" "$UNBOUND_PATH/unbound.conf"
 
 # Generate root hints
-wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
+echo "Downloading internic root.hints to local cache"
+wget https://www.internic.net/domain/named.root -qO- | sudo tee "$LIB_PATH/root.hints"
 
 # Set permissions
-sudo chown -R unbound:unbound /var/lib/unbound /var/log/unbound /etc/unbound | tee -a run.log
-sudo chmod -R 755 /var/lib/unbound /var/log/unbound /etc/unbound | tee -a run.log
+sudo chown -R unbound:unbound $LIB_PATH $LOG_PATH $UNBOUND_PATH | tee -a run.log
+sudo chmod -R 755 $LIB_PATH $LOG_PATH $UNBOUND_PATH | tee -a run.log
 
 # Run unbound utils
 sudo apt install unbound-anchor | tee -a run.log
