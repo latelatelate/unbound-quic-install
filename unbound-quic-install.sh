@@ -9,6 +9,8 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+REPO_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 rm -f run.log && touch run.log
 
 # Install extra dependencies
@@ -17,9 +19,8 @@ sudo apt install python3
 # Unzip unbound.tar and move to sbin
 echo "Extracting Unbound"
 tar xzf unbound-quic-1.22.0.tar.gz | tee -a run.log
-cd unbound-quic-1.22.0
-sudo cp -r local/ /usr/local/ | tee -a run.log
-sudo cp -r sbin /usr/sbin/ | tee -a run.log
+sudo cp -r "$REPO_PATH/unbound-quic-1.22.0/local/." /usr/local/ | tee -a run.log
+sudo cp -r "$REPO_PATH/unbound-quic-1.22.0/sbin/." /usr/sbin/ | tee -a run.log
 
 # Generate user for unbound.service
 echo "Generating new user (unbound)"
@@ -28,7 +29,7 @@ sudo useradd -M --system --shell /usr/sbin/nologin --user-group unbound | tee -a
 # Create app directories
 echo "Creating app directories and configuring ownership"
 sudo mkdir -p /var/lib/unbound/certs /var/log/unbound /etc/unbound | tee -a run.log
-sudo cp config/unbound.conf /etc/unbond.conf
+sudo cp "$REPO_PATH/config/unbound.conf" /etc/unbond.conf
 
 # Generate root hints
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
@@ -42,12 +43,12 @@ sudo -u unbound /usr/local/sbin/unbound-anchor || echo "Unbound-anchor may have 
 sudo -u unbound /usr/local/sbin/unbound-control-setup | tee -a run.log
 
 # Configure systemd
-sudo cp system/unbound.service /etc/systemd/system/unbound.service | tee -a run.log
+sudo cp "$REPO_PATH/system/unbound.service" /etc/systemd/system/unbound.service | tee -a run.log
 sudo systemctl daemon-reload
 
 # Configure apparmor
 if sudo apparmor_status | grep -q "module is loaded"; then
-  sudo cp apparmor.d/usr.sbin.unbound /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
+  sudo cp "$REPO_PATH/apparmor.d/usr.sbin.unbound" /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
   sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
 fi
 
