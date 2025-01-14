@@ -50,6 +50,7 @@ sudo systemctl daemon-reload
 # Configure apparmor
 if sudo apparmor_status | grep -q "module is loaded"; then
   sudo cp "$REPO_PATH/apparmor.d/usr.sbin.unbound" /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
+  sudo touch /etc/apparmor.d/local/usr.sbin.unbound
   sudo apparmor_parser -r /etc/apparmor.d/usr.sbin.unbound | tee -a run.log
 fi
 
