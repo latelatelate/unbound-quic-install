@@ -14,7 +14,7 @@ REPO_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 rm -f run.log && touch run.log
 
 # Install extra dependencies
-sudo apt install python3 | tee -a run.log
+sudo apt install python3 libpython3-dev | tee -a run.log
 
 # Unzip unbound.tar and move to sbin
 echo "Extracting Unbound"
