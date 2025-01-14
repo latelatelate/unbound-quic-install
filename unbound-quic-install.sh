@@ -14,7 +14,7 @@ REPO_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 rm -f run.log && touch run.log
 
 # Install extra dependencies
-sudo apt install python3 
+sudo apt install python3 | tee -a run.log
 
 # Unzip unbound.tar and move to sbin
 echo "Extracting Unbound"
@@ -39,8 +39,9 @@ sudo chown -R unbound:unbound /var/lib/unbound /var/log/unbound /etc/unbound | t
 sudo chmod -R 755 /var/lib/unbound /var/log/unbound /etc/unbound | tee -a run.log
 
 # Run unbound utils
-sudo -u unbound /usr/local/sbin/unbound-anchor || echo "Unbound-anchor may have failed to update the root.key used to verify DNSSEC signatures." | tee -a run.log
-sudo -u unbound /usr/local/sbin/unbound-control-setup | tee -a run.log
+sudo apt install unbound-anchor | tee -a run.log
+sudo -u unbound /usr/sbin/unbound-anchor -a /var/lib/unbound/root.key || echo "Unbound-anchor may have failed to update the root.key used to verify DNSSEC signatures." | tee -a run.log
+sudo -u unbound /usr/sbin/unbound-control-setup | tee -a run.log
 
 # Configure systemd
 sudo cp "$REPO_PATH/system/unbound.service" /etc/systemd/system/unbound.service | tee -a run.log
