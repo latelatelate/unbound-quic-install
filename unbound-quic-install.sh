@@ -13,6 +13,7 @@ REPO_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 UNBOUND_PATH=/etc/unbound
 LIB_PATH=/var/lib/unbound
 LOG_PATH=/var/log/unbound
+CERT_PATH="$LIB_PATH/certs"
 
 rm -f run.log && touch run.log
 
@@ -31,7 +32,7 @@ sudo useradd -M --system --shell /usr/sbin/nologin --user-group unbound | tee -a
 
 # Create app directories
 echo "Creating app directories and configuring ownership"
-sudo mkdir -p "$LIB_PATH/certs" $LOG_PATH $UNBOUND_PATH | tee -a run.log
+sudo mkdir -p $CERT_PATH $LOG_PATH $UNBOUND_PATH | tee -a run.log
 sudo cp "$REPO_PATH/config/unbound.conf" "$UNBOUND_PATH/unbound.conf"
 
 # Generate root hints
@@ -80,6 +81,10 @@ sudo sysctl -p
 
 # Enable unbound
 systemctl enable unbound | tee -a run.log
-systemctl restart unbound | tee -a run.log
-systemctl status unbound | tee -a run.log
-echo "Unbound installed."
+
+printf "\n"
+echo -e "\e[31mWARNING:\e[0m Valid SSL certs required!"
+echo -e "\e[31mWARNING:\e[0m \e[32mprivkey.pem\e[0m and \e[32mfullchain.pem\e[0m must be placed in \e[32m$CERT_PATH\e[0m."
+echo -e "\e[31mWARNING:\e[0m Unbound will fail to start without a valid SSL certificate"
+printf "\n"
+echo "Unbound installed successfully!"
